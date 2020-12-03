@@ -1,0 +1,131 @@
+                               SSH(Secure Shell) Configuration
+                             -------------------------------------------------
+    # whoami
+    # sudo  su  -           ---> to switch root user
+
+ Step-1:  to change root password : 
+------------------------------------------------
+               node# passwd  root
+       Enter new passwd :  root
+
+ Step-2:  to configure ssh: 
+------------------------------------
+               node# vi /etc/ssh/sshd_config
+        [press 'i' for insert mode]
+	PermitRootLogin   yes
+	PasswordAuthentication   yes
+        [press 'Esc']
+        [:wq  ---> write and quit]
+
+
+ Step-3: to restart ssh service:
+ -----------------------------------------
+              node# service ssh restart         (for Ubuntu nodes)
+                                  [OR]
+              node# systemctl restart sshd   (for Redhat nodes)
+
+
+
+ Step-4: to Connect with Nodes:
+----------------------------------------------
+              node# hostname  -i         (to get an  Private IP-Address)
+             [OR]  # ifconfig      
+             [OR]  # ip  a         
+
+              node# curl ifconfig.me     (to get an  Public IP-Address)
+               [OR]   curl ifconfig.in
+
+              node# hostname  -f         (to get a Host Name / FQDN)
+  
+              mstr#  ssh  <node-IP>
+
+
+
+                                Password less Authentication  (SSH-Keys)
+                                -------------------------------------------------------------
+ Step-1:  to generate a Key-pair
+------------------------------------------
+             mstr#  ls  -a          (to list hidden files)
+             mstr#  cd .ssh   
+             mstr#  ssh-keygen
+             mstr#  ls
+             id_rsa          (private key)
+             id_rsa.pub   (public key)
+
+ Step-2:  to send public key to nodes
+----------------------------------------------------
+          mstr#  ssh-copy-id   <node IP Address>
+
+ Step-3: to Connect with Nodes:
+----------------------------------------------
+              mstr#  ssh  <node IP>
+
+
+                                                           ANSIBLE Installation
+                                                        ----------------------------------
+
+Installation:
+=========
+   #  apt-get update
+   #  apt-get install software-properties-common -y
+   #  apt-add-repository ppa:ansible/ansible
+
+   #  apt-get update
+   #  apt-get install ansible -y
+   #  ansible --version
+
+
+Configuration:
+============ 
+   #  cd /etc/ansible/
+   #  cp ansible.cfg ~/
+   #  cp hosts ~/
+
+
+root@ansible-mstr:~# cat hosts
+[ubnt]
+10.128.0.33
+[cent]
+10.128.0.34
+
+
+root@ansible-mstr:~# cat ansible.cfg
+
+ [defaults]
+inventory      = /root/hosts        --> update invenotry path  
+deprecation_warnings=False   --> add a new line
+
+# plugin_filters_cfg = /etc/ansible/plugin_filters.yml    --> comment these lines
+# ask_sudo_pass = True
+# ask_pass      = True
+
+
+root@ansible-mstr:~# ansible all -m ping
+10.128.0.33 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+10.128.0.34 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
