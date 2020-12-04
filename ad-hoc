@@ -1,0 +1,53 @@
+   # ansible all --list-hosts
+   78  ansible all -m ping
+   82  ansible ubnt -m setup
+   83  ansible ubnt -m setup | grep ansible_distribution
+   84  ansible cent -m setup | grep ansible_distribution
+   86  ansible all -m setup -a "filter=ansible_distribution"
+   92  ansible ubnt -m apt -a "name=apache2 state=present"
+   94  ansible cent -m yum -a "name=httpd state=latest"
+   96  ansible all -m package -a "name=git-core state=latest"
+   98  ansible ubnt -m service -a "name=apache2 state=started"
+  100  ansible cent -m systemd -a "name=httpd state=started"
+
+  105  ansible all -m shell -a "uptime"
+  106  ansible all -m shell -a "date; uptime"
+  110  ansible all -m command -a "touch /tmp/demo.txt"
+  111  ansible all -m file -a "name=/tmp/devops state=touch"
+  114  ansible all -m raw -a "mkdir /tmp/new-devops"
+  115  ansible all -m raw -a "useradd ravi"
+  116  ansible all -m raw -a "groupadd sales"
+  117  ansible ubnt -m raw -a "apt-get install -y vim curl tree"
+
+  120  ansible all -m group -a "name=devops state=present"
+  121  ansible all -m user -a "name=sathya group=devops state=present"
+  122  clear
+  123  ansible all -m file -a "name=/tmp/devops state=absent"
+  124  clear
+  125  ansible all -m file -a "name=/tmp/DEMO.TXT state=touch"
+  126  clear
+  127  ansible all -m file -a "name=/tmp/DEMO.TXT mode=0777 user=sathya 
+
+group=devops"
+  128  ansible all -m file -a "name=/tmp/DEMO.TXT mode=0777 owner=sathya 
+
+group=devops"
+  129  clear
+  130  ansible all -m file -a "name=/tmp/MYDIR state=directory"
+  131  clear
+  132  touch demo.txt
+  133  vi demo.txt
+  134  ansible all -m copy -a "src=/root/demo.txt dest=/opt/demo.txt"
+
+  137  ansible all -m cron -a "name='myjob' job='ls -l > /tmp/backup' minute=30 
+
+hour=5"
+
+Host Override:
+---------------------
+  145  ansible all -i new-hosts -m ping
+
+Key Override:
+--------------------
+  154  ansible all -i new-hosts --private-key new-key -m ping
+  156  ansible all -l ubnt -i new-hosts --private-key new-key -m ping
