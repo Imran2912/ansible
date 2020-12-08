@@ -1,0 +1,73 @@
+---
+- hosts: all
+  become: true
+  vars:
+  - pack1: mysql-server
+  - pack2: mariadb-server
+  tasks:
+  - name: to update repo and install {{pack1}}
+    apt: name={{pack1}} update_cache=yes state=latest
+    when: ansible_distribution=='Ubuntu'
+    notify:
+     - start mysql
+
+  - name: to update repo and install {{pack2}}
+    yum: name={{pack2}} update_cache=yes state=latest
+    when: ansible_distribution=='CentOS'
+    notify:
+     - start mariadb
+
+  handlers:
+  - name: start mysql
+    service: name=mysql state=restarted
+
+  - name: start mariadb
+    systemd: name=mariadb state=restarted
+=========================================================================
+---
+- hosts: all
+  become: true
+  vars:
+  - pack1: net-tool
+  - pack2: git-core
+  vars_prompt:
+  - name: grp
+    prompt: Enter a Group
+    private: yes
+  - name: usr
+    prompt: Enter an User
+    private: no
+  tasks:
+  - name: to install {{pack1}}
+    package: name={{pack1}} state=present
+    ignore_errors: yes
+  - name: to install {{pack2}}
+    package: name={{pack2}} state=present
+    ignore_errors: yes
+  - name: to add a group
+    group: name={{grp}} state=present
+    ignore_errors: yes
+  - name: to add an user
+    user: name={{usr}} group={{grp}} state=present
+    ignore_errors: yes
+
+
+To Run Playbooks:
+------------------
+root@ansible-mstr:~# #ansible-playbook playbooks/pb1.yml
+root@ansible-mstr:~#
+root@ansible-mstr:~# #ansible-playbook -e "pack1=vim pack2=curl" playbooks/pb1.yml
+root@ansible-mstr:~#
+root@ansible-mstr:~# #ansible-playbook -i hosts -l ubnt -e "pack1=vim pack2=curl" playbooks/pb1.yml
+nsible-playbook -i hosts -l ubnt playbooks/pb1.yml --start-at-task="to add a group"
+  **** ansible-playbook -i hosts -l ubnt -e "pack1=vim pack2=curl" --private-key ~/.ssh/id_rsa playbooks/pb1.yml --start-at-task="to add a group"
+
+ansible-mstr:~# ansible-playbook -i hosts -l 10.128.0.33 -e "pack1=vim pack2=curl" --private-key ~/.ssh/id_rsa playbooks/pb1.yml --start-at-task="to add a group"
+------------------------------
+
+
+
+
+
+
+
