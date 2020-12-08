@@ -64,6 +64,53 @@ nsible-playbook -i hosts -l ubnt playbooks/pb1.yml --start-at-task="to add a gro
 
 ansible-mstr:~# ansible-playbook -i hosts -l 10.128.0.33 -e "pack1=vim pack2=curl" --private-key ~/.ssh/id_rsa playbooks/pb1.yml --start-at-task="to add a group"
 ------------------------------
+PLAYBOOK:
+=========
+---
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+   - name: to get git repo
+     git:
+       repo: https://github.com/sathyadevops/mvnproj.git
+       dest: /opt/clone
+
+   - name: to download a package
+     get_url:
+       url: https://mirrors.estointernet.in/apache/tomcat/tomcat-9/v9.0.40/bin/apache-tomcat-9.0.40.tar.gz
+       dest: /opt/apache-tomcat-9.0.40.tar.gz
+       mode: "0666"
+
+   - name: to extrack packages
+     unarchive:
+       src: /opt/apache-tomcat-9.0.40.tar.gz
+       dest: /opt/
+       remote_src: yes
+==============================================================
+---
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+   - name: to install packages
+     package: name={{item}} state=present
+     with_items:
+      - curl
+      - tree
+      - wget
+      - vim
+
+   - name: to copy files
+     copy:
+       src: /root/files/{{item}}
+       dest: /tmp/
+     with_items:
+      - file1.txt
+      - file2.txt
+      - file3.txt
+      - file4.txt
+
 
 
 
