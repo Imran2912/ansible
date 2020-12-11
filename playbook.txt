@@ -110,6 +110,150 @@ PLAYBOOK:
       - file2.txt
       - file3.txt
       - file4.txt
+====================================================================
+root@ansible-mstr:~# cat playbooks/templates/demo.j2
+<h1> Hello {{var1}} </h1>
+<h1> Good day {{var2}}</h1>
+root@ansible-mstr:~#
+root@ansible-mstr:~# cat playbooks/pb1.yml
+---
+- hosts: cent
+  become: true
+  gather_facts: true
+  vars:
+   - var1: SathyaTech
+   - var2: DevOps!
+  tasks:
+   - name: to copy files
+     yum: name=httpd update_cache=yes state=present
+
+   - name: to deploy a file
+     template:
+        src: demo.j2
+        dest: /var/www/html/index.html
+
+   - name: start service
+     systemd: name=httpd state=started
+root@ansible-mstr:~#
+=============================================================
+root@ansible-mstr:~# cat playbooks/pb1.yml
+---
+- hosts: cent
+  become: true
+  gather_facts: true
+  vars:
+   - pack1: java
+   - pack2: tomcat
+  vars_prompt:
+     name: myport
+     prompt: Enter a Tomcat port
+     private: no
+  tasks:
+   - name: to install java
+     yum: name={{pack1}} update_cache=yes state=present
+   - name: to install tomcat
+     yum: name={{pack2}} update_cache=yes state=present
+     notify:
+      - start tomcat
+   - name: to change tomcat port
+     template:
+        src: sample.j2
+        dest: /etc/tomcat/server.xml
+     notify:
+      - restart tomcat
+  handlers:
+   - name: start tomcat
+     systemd: name=tomcat state=started
+   - name: restart tomcat
+     systemd: name=tomcat state=restarted
+root@ansible-mstr:~#
+=============================================================================
+root@ansible-mstr:~#
+root@ansible-mstr:~# cd playbooks/
+root@ansible-mstr:~/playbooks# mkdir roles
+root@ansible-mstr:~/playbooks# cd roles/
+root@ansible-mstr:~/playbooks/roles# mkdir -p myrole/{files,tasks,meta,handlers,vars}
+root@ansible-mstr:~/playbooks/roles# ls
+myrole
+root@ansible-mstr:~/playbooks/roles# cd myrole/
+root@ansible-mstr:~/playbooks/roles/myrole# ls
+files  handlers  meta  tasks  vars
+root@ansible-mstr:~/playbooks/roles/myrole#
+root@ansible-mstr:~# cd playbooks/roles/
+root@ansible-mstr:~/playbooks/roles#
+root@ansible-mstr:~/playbooks/roles#
+root@ansible-mstr:~/playbooks/roles# tree myrole/
+myrole/
+├── files
+│   ├── index.html
+│   └── sample.war
+├── handlers
+│   └── main.yml
+├── meta
+├── tasks
+│   ├── deploy_files.yml
+│   ├── main.yml
+│   └── pack_install.yml
+└── vars
+    └── main.yml
+
+5 directories, 7 files
+root@ansible-mstr:~/playbooks/roles#
+root@ansible-mstr:~# cd playbooks/roles/myrole/
+root@ansible-mstr:~/playbooks/roles/myrole# cat vars/main.yml
+ pack1: apache2
+ pack2: openjdk-8-jdk
+ pack3: tomcat8
+ pack4: mysql-server
+root@ansible-mstr:~/playbooks/roles/myrole# cat handlers/main.yml
+- name: start apache
+  service: name=apache2 state=started
+
+- name: start tomcat
+  service: name=tomcat8 state=started
+
+- name: start mysql
+  service: name=mysql-server state=started
+root@ansible-mstr:~/playbooks/roles/myrole# cat tasks/pack_install.yml
+- name: to install {{pack1}}
+  apt: name={{pack1}} state=latest
+  notify:
+    - start apache
+- name: to install {{pack2}}
+  apt: name={{pack2}} state=latest
+- name: to install {{pack3}}
+  apt: name={{pack3}} state=latest
+  notify:
+    - start tomcat
+- name: to install {{pack4}}
+  apt: name={{pack4}} state=latest
+  notify:
+    - start mysql
+
+root@ansible-mstr:~/playbooks/roles/myrole# cat tasks/deploy_files.yml
+- name: to deploy index.html
+  copy:
+    src: index.html
+    dest: /var/www/html/index.html
+
+- name: to deploy sample.war
+  copy:
+    src: sample.war
+    dest: /var/lib/tomcat8/webapps/sample.war
+
+root@ansible-mstr:~/playbooks/roles/myrole# cat tasks/main.yml
+- include: pack_install.yml
+- include: deploy_files.yml
+root@ansible-mstr:~/playbooks/roles/myrole#
+
+t@ansible-mstr:~# cat playbooks/pb1.yml
+---
+- hosts: ubnt
+  become: true
+  gather_facts: true
+  roles:
+   - myrole
+
 
 
 
