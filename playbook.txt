@@ -1,3 +1,26 @@
+
+root@ans-mstr:~# cat playbooks/pb1.yml
+---
+- hosts: all
+  remote_user: root
+  gather_facts: true
+  tasks:
+   - name: to copy a file
+     copy:
+       src: /root/files/demo.txt
+       dest: /tmp/demo.txt
+
+   - name: to dispaly msg
+     debug:
+       msg: Files are copied!
+root@ans-mstr:~#
+root@ans-mstr:~#
+root@ans-mstr:~# ansible-playbook playbooks/pb1.yml --syntax-check
+
+playbook: playbooks/pb1.yml
+root@ans-mstr:~#
+root@ans-mstr:~# #ansible-playbook playbooks/pb1.yml
+
 ---
 - hosts: all
   become: true
