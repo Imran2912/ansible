@@ -20,7 +20,30 @@ root@ans-mstr:~# ansible-playbook playbooks/pb1.yml --syntax-check
 playbook: playbooks/pb1.yml
 root@ans-mstr:~#
 root@ans-mstr:~# #ansible-playbook playbooks/pb1.yml
+==========================================
+root@ans-mstr:~# cat playbooks/pb1.yml
+---
+- hosts: all
+  remote_user: root
+  gather_facts: true
+  tasks:
+   - name: to update repo
+     raw: apt-get update
 
+
+   - name: to install apache
+     apt: name=apache2  state=present
+
+
+   - name: to copy a file
+     copy:
+       src: /root/files/index.html
+       dest: /var/www/html/index.html
+
+   - name: to restart service
+     service: name=apache2 state=started
+
+=====================================================================
 ---
 - hosts: all
   become: true
@@ -46,7 +69,7 @@ root@ans-mstr:~# #ansible-playbook playbooks/pb1.yml
 
   - name: start mariadb
     systemd: name=mariadb state=restarted
-=========================================================================
+========================================================================= 
 ---
 - hosts: all
   become: true
