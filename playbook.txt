@@ -44,6 +44,40 @@ root@ans-mstr:~# cat playbooks/pb1.yml
      service: name=apache2 state=started
 
 =====================================================================
+root@ans-mstr:~# cat playbooks/pb1.yml
+---
+- hosts: cent
+  become: true
+  gather_facts: false
+  vars:
+   - pack1: java
+   - pack2: tomcat
+  tasks:
+   - name: to install {{pack1}}
+     yum: name={{pack1}} update_cache=yes state=present
+
+   - name: to install {{pack2}}
+     package: name={{pack2}} update_cache=yes state=present
+     notify:
+       - start tomcat
+
+   - name: to deploy a file
+     copy:
+       src: /root/files/sample.war
+       dest: /var/lib/tomcat/webapps/sample.war
+
+  handlers:
+   - name: start tomcat
+     systemd: name={{pack2}} state=started
+
+root@ans-mstr:~# #ansible-playbook playbooks/pb1.yml --syntax-check
+root@ans-mstr:~#
+root@ans-mstr:~#
+root@ans-mstr:~# #ansible-playbook playbooks/pb1.yml
+==============================================================================
+
+
+
 ---
 - hosts: all
   become: true
