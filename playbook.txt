@@ -143,6 +143,11 @@ nsible-playbook -i hosts -l ubnt playbooks/pb1.yml --start-at-task="to add a gro
   **** ansible-playbook -i hosts -l ubnt -e "pack1=vim pack2=curl" --private-key ~/.ssh/id_rsa playbooks/pb1.yml --start-at-task="to add a group"
 
 ansible-mstr:~# ansible-playbook -i hosts -l 10.128.0.33 -e "pack1=vim pack2=curl" --private-key ~/.ssh/id_rsa playbooks/pb1.yml --start-at-task="to add a group"
+
+  100  ansible-playbook -i hosts -l ubnt --private-key ~/.ssh/id_rsa -e "pack1=tree pack2=vim grp=aws usr=krishna" playbooks/pb1.yml
+  101  clear
+  102  ansible-playbook -i hosts -l ubnt -k -K -e "pack1=tree pack2=vim grp=aws usr=krishna" playbooks/pb1.yml
+
 ------------------------------
 PLAYBOOK:
 =========
